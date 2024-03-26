@@ -37,7 +37,8 @@ clean_meta <- metadata %>%
                        levels = c("None", "Hay", "Rapeseed meal", "Wheat grain",
                                   "Maize grain", "Concentrate"))) %>% 
   filter(sample != "49" & sample != "78" & sample != "87",
-         treatment != "FD_noN3Wo") #Remove samples with 72h
+         treatment != "FD_noN3Wo"
+         ) #Remove samples with 72h
 
 # Save clean metadata ----------------------------------------------------------
 saveRDS(clean_meta, file = "conservation_protocol/output/clean_meta.rds")

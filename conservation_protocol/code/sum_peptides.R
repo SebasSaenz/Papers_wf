@@ -4,6 +4,7 @@ set.seed(150988)
 library(tidyverse)
 library(patchwork)
 library(ggtext)
+library(broom)
 
 
 # Load data --------------------------------------------------------------------
@@ -32,12 +33,16 @@ df <- peptides %>%
 
 # Statistical test -------------------------------------------------------------
 model <- aov(log2 ~ treatment * incubation * substrate, data = df)
+
 x <- summary(model)
 
+# output as df
 anova_results <- tidy(model)
+
+
 write_tsv(anova_results, file = "conservation_protocol/output/anova_peptides.txt")
 
-q# Plot ------------------------------------------------------------
+# Plot ------------------------------------------------------------
 plot_incubation <- df %>% 
   mutate(incubation = str_replace(incubation, "-", "<br>"),
          incubation = factor(incubation,

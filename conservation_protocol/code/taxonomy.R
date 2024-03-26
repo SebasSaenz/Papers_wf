@@ -1,4 +1,5 @@
 # set up working space ---------------------------------------------------------
+set.seed(150988)
 library(tidyverse)
 library(ggrepel)
 library(here)
@@ -8,7 +9,7 @@ library(remotes)
 taxonomy <- read_tsv("conservation_protocol/rawdata/Genome.tsv") %>% 
   rename(genome=Genome)
 
-metadata <- read_tsv("conservation_protocol/rawdata/metadata.txt")
+clean_metadata <- readRDS("conservation_protocol/output/clean_meta.rds")
 
 gtdb <- read_tsv("conservation_protocol/rawdata/new_gtdbtk.bac120.tsv") %>% 
   rename(Genome=user_genome) %>%   
@@ -19,20 +20,6 @@ gtdb <- read_tsv("conservation_protocol/rawdata/new_gtdbtk.bac120.tsv") %>%
                   "species"),
            sep=";")
 
-# Clean metadata ---------------------------------------------------------------
-clean_meta <- metadata %>%
-separate(treatment,
-         into = c("sampling", "treatment", "incubation", "substrate"),
-         sep = "-") %>% 
-  mutate(incubation = str_replace(incubation, "1", "Pre-treated"),
-         incubation = str_replace(incubation, "0[a-b]", "No incubation"),
-         incubation = factor(incubation,
-                             levels = c("No incubation", "Pre-treated", "8", "24", "72")),
-         substrate = if_else(is.na(substrate), "None", substrate),
-         treatment = factor(treatment,
-                            levels = c("C", "W", "F", "FN", "FD", "FD_noN", "FD_noN3Wo")))
-
-write_tsv(clean_meta, file = "metadata_lfq.txt")
 # Taxonomy analysis ------------------------------------------------------------
 taxonomy %>%
   inner_join(gtdb, by = "genome") %>% 
@@ -48,7 +35,7 @@ taxonomy %>%
   summarise(sum_intensity = sum(intensity), .groups = "drop") %>% 
   group_by(sample) %>% 
   mutate(rel_abun = 100 * (sum_intensity/sum(sum_intensity))) %>% 
-  inner_join(clean_meta, by = "sample") %>% 
+  inner_join(clean_metadata, by = "sample") %>% 
   #filter(phylum == "Spirochaetota") %>% 
   ggplot(aes(x = treatment,
              y = rel_abun)) +
@@ -119,17 +106,34 @@ correlation_df <- taxonomy %>%
          sample = as.numeric(sample)) %>% 
   group_by(sample, phylum) %>% 
   summarise(sum_intensity = sum(intensity), .groups = "drop")  %>% 
-  inner_join(clean_meta, by = "sample")
+  inner_join(clean_metadata, by = "sample")
 
-C_W_8 <- correlation_df %>% 
-  filter(treatment == "C" | treatment == "W",
-         incubation == "No incubation" |incubation == "8") %>% 
-  group_by(treatment, phylum) %>% 
+compared_t <- 
+
+  correlation_plot <- function(compared_t, compared_incubation) {
+    plot <<- correlation_df %>% 
+      filter(treatment == "C" | treatment == {{compared_t}},
+             incubation == compared_incubation) %>% 
+      group_by(treatment, incubation, phylum) %>% 
+      summarise(mean_intensity = median(sum_intensity), .groups = "drop") %>%
+      mutate(log_intensity = log2(mean_intensity + 1)) %>% 
+      pivot_wider(id_cols = phylum, names_from = treatment, values_from = log_intensity)  %>% ggplot(aes(x = C,
+                                                                                                         y = compared_t))
+    return(plot) 
+  }
+  
+correlation_plot("FR", "8")
+  
+correlation_plot <- function(compared_t, compared_incubation) {
+  plot <- correlation_df %>% 
+  filter(treatment == "C" | treatment == compared_t,
+         incubation == compared_incubation) %>% 
+  group_by(treatment, incubation, phylum) %>% 
   summarise(mean_intensity = median(sum_intensity), .groups = "drop") %>%
   mutate(log_intensity = log2(mean_intensity + 1)) %>% 
   pivot_wider(id_cols = phylum, names_from = treatment, values_from = log_intensity) %>% 
-  ggplot(aes(x = W,
-             y = C)) +
+  ggplot(aes(x = C,
+             y = {{compared_t}})) +
   geom_abline(linetype = "dashed", color = "grey") +
   geom_point()  +
   geom_text_repel(aes(label=phylum), size = 3,
@@ -143,6 +147,11 @@ C_W_8 <- correlation_df %>%
   labs(x = "W-8h incubation (Log2 intensity)",
        y = "C (Log2 intensity)") +
   theme_classic()
+  return(plot)
+}
+
+correlation_plot("FD", "8")
+plot
 
 C_W_24 <- correlation_df %>% 
   filter(treatment == "C" | treatment == "W",

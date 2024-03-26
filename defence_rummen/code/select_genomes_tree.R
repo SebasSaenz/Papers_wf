@@ -1,14 +1,12 @@
-setwd("/Users/sebastiansaenz/Documents/defence_rummen")
-
 library(tidyverse)
 
-checkm <- read_tsv("rawdata/quality_report_genomes.tsv") %>% 
+checkm <- read_tsv("defence_rummen/rawdata/quality_report_genomes.tsv") %>% 
   rename(genome=Name, contamination=Contamination, completeness=Completeness)
 
-taxonomy <- read_tsv("rawdata/gtdbtk_all_summary.tsv") %>% 
+taxonomy <- read_tsv("defence_rummen/rawdata/new_gtdbtk.bac120.tsv") %>% 
   rename(genome = user_genome)
 
-hq_genomes <- read_tsv("rawdata/hq_genomes.txt")
+hq_genomes <- read_tsv("defence_rummen/rawdata/hq_genomes.txt")
 
 taxonomy <- taxonomy %>%
   select(genome, classification) %>%
@@ -47,11 +45,15 @@ tree_annotation_limi <- all_result %>%
   select(system_family, genome) %>% 
   count(system_family, genome) %>%
   complete(system_family, genome, fill = list(n=0)) %>%
-  filter(system_family %in% sysfamily_list) %>%
+  #filter(system_family %in% sysfamily_list) %>%
   mutate(n=if_else(n>=1, 1,0)) %>% 
   pivot_wider(genome, values_from = n, names_from = system_family)
 
 write_tsv(tree_annotation_limi, file = "rawdata/tree_annotation_limi.txt")
+
+limi <- tree_annotation_limi %>% 
+  group_by(system_family) %>% 
+  summarise(sum = 100 * sum(n)/41)
 
 #  Prevotella ------------------------------------------------------------------
 Prevotella_list <- taxonomy %>% 
@@ -77,12 +79,15 @@ tree_annotation_prevo <- all_result %>%
   select(system_family, genome) %>% 
   count(system_family, genome) %>%
   complete(system_family, genome, fill = list(n=0)) %>%
-  filter(system_family %in% sysfamily_list) %>%
+  #filter(system_family %in% sysfamily_list) %>%
   mutate(n=if_else(n>=1, 1,0)) %>% 
   pivot_wider(genome, values_from = n, names_from = system_family)
 
 write_tsv(tree_annotation_limi, file = "rawdata/tree_annotation_prevo.txt")
 
+prevo <- tree_annotation_prevo %>% 
+  group_by(system_family) %>% 
+  summarise(sum = 100 * sum(n)/258)
 #  Butirivibrio ------------------------------------------------------------------
 Butirivibrio_list <- taxonomy %>% 
   select(genome, genus) %>% 
@@ -108,12 +113,15 @@ tree_annotation_buty <- all_result %>%
   select(system_family, genome) %>% 
   count(system_family, genome) %>%
   complete(system_family, genome, fill = list(n=0)) %>%
-  filter(system_family %in% sysfamily_list) %>%
+  #filter(system_family %in% sysfamily_list) %>%
   mutate(n=if_else(n>=1, 1,0)) %>% 
   pivot_wider(genome, values_from = n, names_from = system_family)
 
 write_tsv(tree_annotation_buty, file = "rawdata/tree_annotation_buty.txt")
 
+buty <- tree_annotation_buty %>% 
+  group_by(system_family) %>% 
+  summarise(sum = 100 * sum(n)/55)
 #  Ruminococcus ------------------------------------------------------------------
 Ruminococcus_list <- taxonomy %>% 
   select(genome, genus) %>% 
@@ -139,10 +147,12 @@ Ruminococcus_list <- all_result %>%
   select(system_family, genome) %>% 
   count(system_family, genome) %>%
   complete(system_family, genome, fill = list(n=0)) %>%
-  filter(system_family %in% sysfamily_list) %>%
+  #filter(system_family %in% sysfamily_list) %>%
   mutate(n=if_else(n>=1, 1,0)) %>% 
   pivot_wider(id_cols = genome, values_from = n, names_from = system_family)
 
 write_tsv(Ruminococcus_list, file = "rawdata/tree_annotation_rummi.txt")
 
-
+rummi <- Ruminococcus_list %>% 
+  group_by(system_family) %>% 
+  summarise(sum = 100 * sum(n)/138)

@@ -2,15 +2,15 @@ setwd("/Users/sebastiansaenz/Documents/defence_rummen")
 
 library(tidyverse)
 
-quality_genomes <- read_tsv("rawdata/quality_report_genomes.tsv") %>% 
+quality_genomes <- read_tsv("defence_rummen/rawdata/quality_report_genomes.tsv") %>% 
   rename(genome=Name)
 
-taxonomy <- read_tsv("rawdata/gtdbtk_all_summary.tsv") %>% 
+taxonomy <- read_tsv("defence_rummen/rawdata/new_gtdbtk.bac120.tsv") %>% 
   rename(genome = user_genome)
 
-hq_genomes <- read_tsv("rawdata/hq_genomes.txt")
+hq_genomes <- read_tsv("defence_rummen/rawdata/hq_genomes.txt")
 
-code_color <- read_tsv("rawdata/phylum_colorcode.txt")
+code_color <- read_tsv("defence_rummen/rawdata/trees/phylum_colorcode.txt")
 
 taxonomy <- taxonomy %>%
   select(genome, classification) %>%

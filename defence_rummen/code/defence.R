@@ -69,7 +69,7 @@ write.table(unique_system, "rawdata/list_system.txt",
             sep = "\t",
             row.names = FALSE)
 
-list_system <- read_tsv("rawdata/list_system.txt")
+list_system <- read_tsv("defence_rummen/rawdata/list_system.txt")
 
 # xxx --------------------------------------------------------------------------
 colors <- c('#1f78b4', '#1b9e77')
