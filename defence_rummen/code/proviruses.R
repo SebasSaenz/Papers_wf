@@ -1,5 +1,7 @@
-# setting ----------------------------------------------------------------------
-setwd("/Users/sebastiansaenz/Documents/defence_rummen")
+# Johan S. Sáenz, University of Hohenheim
+# Wrangle data to fit into Cytoskape and create a network
+
+# Load libraries ---------------------------------------------------------------
 
 library(tidyverse)
 library(data.table)
@@ -14,7 +16,7 @@ library(viridis)
 colors <- c('#1f78b4', '#1b9e77')
 
 # concatenate files ------------------------------------------------------------
-all_paths <- list.files(path = "rawdata/padloc/csv/",
+all_paths <- list.files(path = "defence_rummen/rawdata/padloc/csv/",
                         pattern = "*.csv",#List paths
                         full.names = TRUE)
 
@@ -37,10 +39,10 @@ all_result <- rbindlist(all_lists, fill = T)
 names(all_result)[20] <- "genome" #change column name
 
 # xxx -------------------------------------------------------------------------
-quality_genomes <- read_tsv("rawdata/quality_report_genomes.tsv") %>% 
+quality_genomes <- read_tsv("defence_rummen/rawdata/quality_report_genomes.tsv") %>% 
   rename(genome=Name)
 
-taxonomy <- read_tsv("rawdata/gtdbtk_all_summary.tsv") %>% 
+taxonomy <- read_tsv("defence_rummen/rawdata/new_gtdbtk.bac120.tsv") %>% 
   rename(genome = user_genome)
 
 hq_genomes <- read_tsv("rawdata/hq_genomes.txt")
@@ -69,8 +71,10 @@ number_system <- all_result %>% #all genomes with DS
 
 # proviruses -------------------------------------------------------------------
 
-viral_qc <- read_tsv("rawdata/viral_quality_summary.tsv")
+viral_qc <- read_tsv("defence_rummen/rawdata/viral_quality_summary.tsv")
 
+# Create a file to use in Tree
+# Number of proviruses per genome
 provirus <- viral_qc %>% 
   filter(provirus == "Yes",
          viral_genes >=1,
@@ -88,6 +92,8 @@ provirus_tree <- provirus %>%
   
 write_tsv(provirus_tree, file = "rawdata/provirus_counts.txt")
 
+
+# Provirus plot
 ds_provirus <- left_join(taxonomy, provirus, by = "genome") %>%
   select(genome, proviruses) %>% 
   left_join(number_system, provirus, by = "genome") %>% 
@@ -127,6 +133,6 @@ ds_provirus <- left_join(taxonomy, provirus, by = "genome") %>%
         legend.text = element_text(size=15),
         panel.spacing = unit(2, "lines")) 
 
-ds_provirus  
+  
 
 
