@@ -2,7 +2,7 @@
 
 ## 2024
 
--   Sáenz, J.S., Rios-Galicia, B, and Seifert, J., 2024. Bacterial and archaeal antiviral defence system in the rumen microbiome [**REPOSITORY**](https://github.com/SebasSaenz/Papers_wf/tree/main/defence_rummen/code)
+-   Sáenz, J.S., Rios-Galicia, B, and Seifert, J., 2024. Bacterial and archaeal antiviral defence system in the rumen microbiome [**REPOSITORY**](https://github.com/SebasSaenz/Papers_wf/tree/main/defence_rummen)
 
 ## **2023**
 
