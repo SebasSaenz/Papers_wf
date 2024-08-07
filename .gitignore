@@ -1,5 +1,6 @@
 .DS_Store
 **/rawdata
+**/pictures
 **/plots
 **/output
 **/.Rproj.user

@@ -249,6 +249,7 @@ bar_number_system_genomes <- all_result %>% # all genomes with DS
   group_by(kingdom) %>%
   # filter(kingdom == "Bacteria") %>%
   mutate(perc = 100 * (total / sum(total))) %>%
+  ungroup() %>% 
   filter(n < 21) %>%
   ggplot(aes(
     x = n,
@@ -451,7 +452,7 @@ system_list_filter <- all_result %>%
   )) %>%
   mutate(rel_abund = 100 * (n / total_genomes)) %>%
   group_by(system) %>%
-  summarise(max = max(rel_abund)) %>%
+  summarise(max = max(rel_abund), .groups = "drop") %>%
   filter(max > 3.5) %>%
   pull(system)
 
@@ -530,7 +531,8 @@ rel_abund_system_kingdom <- all_result %>% # replace status or kingdom
     .groups = "drop"
   ) %>%
   group_by(kingdom) %>%
-  mutate(rel_abun = 100 * total / sum(total))
+  mutate(rel_abun = 100 * total / sum(total)) %>% 
+  ungroup()
 
 # Merge less abundant systems
 taxon_pool <- rel_abund_system_kingdom %>%
@@ -619,6 +621,7 @@ heat_map_df <- all_result %>%
   inner_join(phylum_count, by = "phylum") %>%
   group_by(phylum) %>%
   mutate(percent = 100 * (total / phylum_number)) %>%
+  ungroup() %>% 
   mutate(
     percent2 = case_when(
       percent >= 20 ~ 20,
@@ -839,7 +842,7 @@ genus_ds_plot <- all_result %>%
   select(family, genus, total) %>%
   filter(genus %in% select_genus$genus) %>%
   group_by(genus) %>%
-  summarise(mean_total = mean(total))
+  summarise(mean_total = mean(total), .groups = "drop")
 
 # Number of ds families
 genus_ds_fam <- all_result %>%
@@ -857,7 +860,7 @@ genus_ds_fam <- all_result %>%
   select(family, genus, total) %>%
   filter(genus %in% select_genus$genus) %>%
   group_by(genus) %>%
-  summarise(mean_total = mean(total))
+  summarise(mean_total = mean(total), .groups = "drop")
 
 # Correlation plot
 key_genus <- inner_join(genus_ds_fam_plot, genus_ds_plot, by = "genus") %>%

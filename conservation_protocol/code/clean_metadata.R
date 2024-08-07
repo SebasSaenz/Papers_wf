@@ -41,6 +41,7 @@ clean_meta <- metadata %>%
          ) #Remove samples with 72h
 
 # Save clean metadata ----------------------------------------------------------
+write_tsv(clean_meta, file = "conservation_protocol/output/clean_meta_lfq.txt")
 saveRDS(clean_meta, file = "conservation_protocol/output/clean_meta.rds")
 
 
@@ -52,3 +53,15 @@ peptides <- read_tsv("conservation_protocol/rawdata/final_peptides.tsv") %>%
 
 # Save clean metadata ----------------------------------------------------------
 saveRDS(peptides, file = "conservation_protocol/output/peptides.rds")
+
+# Clean GTDB annotations
+gtdb <- read_tsv("conservation_protocol/rawdata/new_gtdbtk.bac120.tsv") %>% 
+  rename(Genome=user_genome) %>%   
+  rename_all(tolower) %>%
+  mutate(classification=str_replace_all(classification, "\\w+__", "")) %>%
+  separate(classification,
+           into=c("kingdom", "phylum", "class", "order", "family", "genus",
+                  "species"),
+           sep=";")
+
+saveRDS(gtdb, file = "conservation_protocol/output/gtdb.rds")

@@ -3,12 +3,12 @@
 
 
 # Load libraries ---------------------------------------------------------------
-set.seed(150988)
-
 library(tidyverse)
 library(vegan)
 library(here)
 library(patchwork)
+library(broom)
+library(gt)
 
 # Load data --------------------------------------------------------------------
 taxonomy <- read_tsv("conservation_protocol/rawdata/Genome.tsv") %>%
@@ -55,10 +55,15 @@ matrix_taxonomy <- df_taxonomy[c(2:ncol(df_taxonomy))] %>%
 
 dist <- vegdist(matrix_taxonomy, method = "bray")
 
-adonis2(as.dist(dist) ~ clean_metadata$treatment * clean_metadata$incubation * clean_metadata$substrate, permutations = 1000)
+adonis_tax <- adonis2(as.dist(dist) ~ clean_metadata$treatment * clean_metadata$incubation * clean_metadata$substrate, permutations = 1000)
 
+
+tidy(adonis_tax) %>% 
+  gt() %>% 
+  gtsave("conservation_protocol/output/adonis_tax.docx")
 
 # Calculate nMDS
+set.seed(1)
 nmds1_taxonomy <- metaMDS(matrix_taxonomy, # perform nmds
   distance = "bray",
   try = 20,
@@ -79,9 +84,10 @@ nmds_best_taxonomy <- metaMDS(matrix_taxonomy,
 nmds_best_taxonomy$stress
 
 # Extract ndms data points -----------------------------------------------------
-data_scores_tax <- as.data.frame(scores(nmds_best_taxonomy, display = c("sites")))
+data_scores_tax <- as.data.frame(scores(nmds_best_taxonomy, display = c("sites"))) %>% 
+  rownames_to_column(var = "sample") %>% 
+  mutate(sample = as.numeric(sample))
 
-data_scores_tax$sample <- as.numeric(row.names(data_scores_tax))
 
 data_nmds_tax <- data_scores_tax %>%
   left_join(clean_metadata, by = "sample") %>%
@@ -202,6 +208,7 @@ matrix_proteins_filtered <- protein_filter[c(2:ncol(protein_filter))] %>%
   t()
 
 # Calculate nMDS
+set.seed(2)
 nmds1_proteins_filtered <- metaMDS(matrix_proteins_filtered, # perform nmds
   distance = "bray",
   try = 20,
@@ -222,9 +229,9 @@ nmds_best_proteins_filtered <- metaMDS(matrix_proteins_filtered,
 nmds_best_proteins_filtered$stress
 
 # Extract ndms data points -----------------------------------------------------
-data_scores_proteins_filtered <- as.data.frame(scores(nmds_best_proteins_filtered, display = c("sites")))
-
-data_scores_proteins_filtered$sample <- as.numeric(row.names(data_scores_proteins_filtered))
+data_scores_proteins_filtered <- as.data.frame(scores(nmds_best_proteins_filtered, display = c("sites"))) %>% 
+  rownames_to_column(var = "sample") %>% 
+  mutate(sample = as.numeric(sample))
 
 data_nmds_proteins_filtered <- data_scores_proteins_filtered %>%
   left_join(clean_metadata, by = "sample")
@@ -306,15 +313,17 @@ ordination_plot <- tax_plot + tax_plot_feed + prot_70p_incubation + prot_70p_sub
 
 ggsave(ordination_plot,
   filename = "conservation_protocol/plots/ordination.png",
-  width = 9, height = 6, dpi = 450
-)
+  width = 9, height = 6, dpi = 450)
 
+# Adonis test ----
 dist <- vegdist(matrix_proteins_filtered, method = "bray")
 
-adonis2(as.dist(dist) ~ clean_metadata$treatment * clean_metadata$incubation * clean_metadata$substrate, permutations = 1000)
+adonis_prot <- adonis2(as.dist(dist) ~ clean_metadata$treatment * clean_metadata$incubation * clean_metadata$substrate, permutations = 1000)
 
 
-
+tidy(adonis_prot) %>% 
+  gt() %>% 
+  gtsave(filename = "conservation_protocol/output/adonis_prot.docx")
 
 
 #------------------------------------------------------------------------------

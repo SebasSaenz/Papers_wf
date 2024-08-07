@@ -8,6 +8,9 @@ library(tidyverse)
 library(here)
 library(rstatix)
 library(ggpubr)
+library(gt)
+
+base_color <- c("#d8b365", "#67a9cf", "#2166ac", "#91cf60", "#1a9850")
 
 # Load data --------------------------------------------------------------------
 
@@ -28,63 +31,37 @@ fr_df <- fr %>%
 
 
 
-fr_df %>%
-  group_by(treatment, incubation, substrate) %>%
-  identify_outliers(nFR)
+res.aov <- aov(nFR ~ treatment*incubation*substrate, data = fr_df)
+  sumary <- summary(res.aov)
 
-
-model <- aov(nFR ~ treatment * incubation * substrate, data = fr_df)
-summary(model)
-
-# Create a QQ plot of residuals
-ggqqplot(residuals(model))
-# Compute Shapiro-Wilk test of normality
-shapiro_test(residuals(model))
-
-
-fr_df %>%
-  group_by(treatment, incubation, substrate) %>%
-  shapiro_test(nFR)
+tidy(res.aov) %>% 
+  gt() %>% 
+  gtsave(filename = "conservation_protocol/output/aov_fr.docx")
 
 
 
-ggqqplot(fr_df, "nFR", ggtheme = theme_bw()) +
-  facet_grid(treatment + incubation ~ substrate, labeller = "label_both")
+leveneTest(nFR ~ treatment, data = fr_df)
+
+TukeyHSD(res.aov) 
 
 
 
-
-model <- lm(nFR ~ incubation * substrate * treatment, data = fr_df)
-summary(model)
-
-treatment.effect <- fr_df %>%
-  group_by(incubation, substrate) %>%
-  anova_test(nFR ~ treatment, error = model)
-
-
-
-
-fr_df %>%
-  group_by(treatment) %>%
-  anova_test(nFR ~ incubation * substrate, error = model)
-
-fr_df %>%
+substrate_plot <- fr_df %>%
   ggplot(aes(
-    x = treatment,
+    x = substrate,
     y = nFR
   )) +
   geom_boxplot(outlier.colour = "white", width = 0.4) +
-  geom_jitter(aes(
-    color = incubation,
-    shape = substrate
-  ), width = 0.3) +
+  geom_jitter(width = 0.3,
+              aes(color = treatment)) +
   scale_y_continuous(
     expand = c(0, 0),
     limits = c(0, 0.1),
     breaks = seq(0, 0.1, 0.01)
   ) +
-  scale_color_manual(values = c('#e66101', '#fdb863', '#b2abd2')) +
-  labs(x = NULL) +
+  scale_color_manual(values = base_color) +
+  labs(x = NULL,
+       title = "Substrate") +
   theme(
     panel.background = element_blank(),
     legend.key = element_blank(),
@@ -95,6 +72,14 @@ fr_df %>%
     panel.grid.minor = element_blank(),
     panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)
   ) +
-  guides(color = guide_legend(override.aes = list(size = 3)))
+  guides(color = guide_legend(override.aes = list(size = 3))) +
+  scale_x_discrete(labels=c("None" = "None", "Hay" = "Hay", "Rapeseed meal" = "Rapeseed\nmeal", 
+                            "Wheat grain" = "Wheat\ngrain"))
 
-ggsave(filename = "conservation_protocol/plots/FR.png", width = 5, height = 3)
+
+compose_plot <- treatment_plot + incubation_plot + substrate_plot + plot_layout(guides = "collect",
+                                                              axes = "collect")
+
+ggsave(compose_plot,
+       filename = "conservation_protocol/plots/FR.png", width = 10, height = 4,
+       dpi = 400)

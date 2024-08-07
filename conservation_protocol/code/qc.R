@@ -1,7 +1,10 @@
-# Set working space-------------------------------------------------------------
+# Johan S. Sáenz, Hohenheim University
+
+# Load libraries ---------------------------------------------------------------
 library(tidyverse)
 library(patchwork)
 library(here)
+library(gt)
 
 # Load dataset -----------------------------------------------------------------
 
@@ -9,7 +12,24 @@ quality <- read_tsv("conservation_protocol/rawdata/final_summary.tsv")
 
 proteins <- read_tsv("conservation_protocol/rawdata/final_proteins.tsv")
 
-# quality analysis -------------------------------------------------------------
+
+# Make a summary table ---------------------------------------------------------
+
+table <- quality %>% 
+  select(-Experiment) %>% 
+  filter(`Raw file` != "Total") %>% 
+  pivot_longer(cols = -1, names_to = "Variable", values_to = "value") %>% 
+  group_by(Variable) %>% 
+  summarise(Max = round(max(value), 1),
+            Min = round(min(value), 1),
+            Mean = round(mean(value), 1),
+            Sd = round(sd(value), 1))
+
+table %>% 
+  gt() %>% 
+  tab_stubhead(label = "landmass") %>% 
+  cols_label() %>% 
+  gtsave("tab_1.docx")
 
 # MS Percentage histogram
 percentage <- quality %>%
@@ -43,20 +63,8 @@ peptides <- quality %>%
 
 mean(quality$`Peptide Sequences Identified`)
 
-# create plot  -----------------------------------------------------------------
 
-quality %>% 
-  select(-Experiment) %>% 
-  filter(`Raw file` != "Total") %>% 
-  pivot_longer(cols = -1, names_to = "variable", values_to = "value") %>% 
-  group_by(variable) %>% 
-  summarise(max = max(value),
-            min = min(value),
-            mean = mean(value),
-            sd = sd(value))
-
-
-#-------------------------------------------------------------------------------
+# Protein origin----------------------------------------------------------------
  filter_proteins <- proteins %>% 
   filter(grepl("SHEEP", `Majority protein IDs`))
 
@@ -80,9 +88,6 @@ ggsave(filename = "conservation_protocol/plots/percentage_proteins.png",
        width = 3, height = 3, dpi = 400)
 
 # Compose plot -----------------------------------------------------------------
-
-
-
 plot <- ((peptides / percentage) | number_proteins)  + 
   plot_layout(widths = c(2, 1)) +
   plot_annotation(tag_levels = 'A')
