@@ -1,12 +1,12 @@
-setwd("/Users/sebastiansaenz/Documents/Lab_stuff/microplastics")
+
 
 library(tidyverse)
 
-annotation <- read_csv("rawdata/proteins_annotations.csv") 
+annotation <- read_csv("microplastics_rumen/rawdata/proteins_annotations.csv") 
 
-proteins <- read_tsv("rawdata/protein_groups.txt")
+proteins <- read_tsv("microplastics_rumen/rawdata/protein_groups.txt")
 
-metadata <- read_tsv("rawdata/metadata.txt") %>% 
+metadata <- read_tsv("microplastics_rumen/rawdata/metadata.txt") %>% 
   mutate(sampleid = as.character(sampleid))
 
 pazy <- read_tsv("rawdata/plastic_enzymes.txt") %>%

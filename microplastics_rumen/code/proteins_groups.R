@@ -1,14 +1,27 @@
 pacman::p_load(tidyverse,
                vegan, 
-               glue)
+               glue,
+               here,
+               patchwork,
+               showtext)
 
-setwd("~/Documents/Lab_stuff/microplastics")
 
-metadata <- read_tsv("rawdata/metadata.txt") %>% 
+metadata <- read_tsv("microplastics_rumen/rawdata/metadata.txt") %>% 
   mutate(sampleid = as.character(sampleid))
 
-proteins <- read_tsv("rawdata/protein_groups.txt") %>%
+proteins <- read_tsv("microplastics_rumen/rawdata/protein_groups.txt") %>%
   rename(proteinid='Protein IDs')
+
+hay_color <- c('#1b9e77','#66a61e','#e6ab02','#d95f02', '#a6761d','#666666')
+
+barley_color <- c('#7570b3','#66a61e','#e6ab02','#e7298a','#a6761d','#666666')
+
+
+font_add_google("Open Sans", "opensans") #You need these for the font
+showtext_auto()
+
+
+
 
 protein_pivot <- proteins %>%  # make a long data frame for NMDS
   pivot_longer(cols = c(2:85), 
@@ -16,7 +29,8 @@ protein_pivot <- proteins %>%  # make a long data frame for NMDS
                values_to = "lfq") %>%
   inner_join(metadata, by = "sampleid") %>% 
   group_by(sampleid) %>% 
-  mutate(rel_abun = lfq/sum(lfq))
+  mutate(rel_abun = lfq/sum(lfq)) %>% 
+  ungroup()
 
 
 nmds_df <- protein_pivot %>%
@@ -92,21 +106,23 @@ data_nmds <- left_join(data.scores, metadata, by = "sampleid")
 
 
 #make plot 
-data_nmds %>%
+hay_nmds <- data_nmds %>%
   ggplot() +
   stat_ellipse(linetype = 2,
                aes(x = NMDS1, 
                    y = NMDS2,
-                   colour = size),
+                   colour = new_size),
                level = 0.95) +
   geom_point(aes(x = NMDS1,
                  y = NMDS2,
-                 colour =size,
+                 colour =new_size,
                  shape= material),
              size = 3) +
-  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8)) +
-  theme_classic() +
-  theme(panel.background = element_blank(), #remove background
+  scale_color_manual(values = hay_color) +
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8)) +
+  theme_bw() +
+  theme(text = element_text(family = "opensans"),
+        panel.background = element_blank(), #remove background
         panel.grid.major = element_blank(), #remove grid
         panel.grid.minor = element_blank(),#remove grid
         legend.title = element_blank(),
@@ -114,7 +130,6 @@ data_nmds %>%
         legend.position = "bottom") +
   guides(color = guide_legend(nrow = 2, byrow = TRUE))
 
-ggsave("figures/nmds_hay.png", width = 6, height = 4)
 
 
 ######### Barley
@@ -174,21 +189,23 @@ data_nmds <- left_join(data.scores, metadata, by = "sampleid")
 
 
 #make plot 
-data_nmds %>%
+barley_nmds <- data_nmds %>%
   ggplot() +
   stat_ellipse(linetype = 2,
                aes(x = NMDS1, 
                    y = NMDS2,
-                   colour = size),
+                   colour = new_size),
                level = 0.95) +
   geom_point(aes(x = NMDS1,
                  y = NMDS2,
-                 colour =size,
+                 colour =new_size,
                  shape= material),
              size = 3) +
-  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8)) +
-  theme_classic() +
-  theme(panel.background = element_blank(), #remove background
+  scale_color_manual(values = barley_color) +
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8)) +
+  theme_bw() +
+  theme(text = element_text(family = "opensans"),
+        panel.background = element_blank(), #remove background
         panel.grid.major = element_blank(), #remove grid
         panel.grid.minor = element_blank(),#remove grid
         legend.title = element_blank(),
@@ -196,7 +213,23 @@ data_nmds %>%
         legend.position = "bottom") +
   guides(color = guide_legend(nrow = 2, byrow = TRUE))
 
-ggsave("figures/nmds_barley.png", width = 6, height = 4)
+
+# Compose plot
+compose_nmds <- (hay_nmds | barley_nmds) + 
+  plot_layout(guides = 'collect') + 
+  plot_annotation(tag_levels = 'A') &
+  theme(legend.position='bottom',
+        text = element_text(size = 50),
+        legend.text = element_text(size = 45))
+
+
+
+ggsave("microplastics_rumen/plots/nmds_proteins.png", dpi = 450, height = 5, width = 11)
+
+
+
+
+
 
 
 nmds_df <- protein_pivot %>%

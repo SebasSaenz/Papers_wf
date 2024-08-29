@@ -3,23 +3,22 @@ pacman::p_load(tidyverse,
                Hmisc,
                ggpubr)
 
-setwd("~/Documents/Lab_stuff/microplastics")
 
 metabolites <- read_tsv("rawdata/metabolites.txt")
 
-lfq_barley <- read_csv("rawdata/Results_lfq_barley.csv") %>% 
+lfq_barley <- read_csv("microplastics_rumen/rawdata/Results_lfq_barley.csv") %>% 
   rename(protein_id="Protein IDs")
 
-lfq_hay <- read_csv("rawdata/Results_lfq_hay.csv") %>% 
+lfq_hay <- read_csv("microplastics_rumen/rawdata/Results_lfq_hay.csv") %>% 
   rename(protein_id="Protein IDs")
 
-proteins_annotation <- read_csv("rawdata/proteins_annotations.csv") %>% 
-  rename(protein_id=X.query)
-
-protein_groups <- read_tsv("rawdata/protein_groups.txt") %>%
+proteins_annotation <- read_csv("microplastics_rumen/rawdata/proteins_annotations.csv") %>% 
   rename(protein_id="Protein IDs")
 
-metadata <- read_tsv("rawdata/metadata.txt")
+protein_groups <- read_tsv("microplastics_rumen/rawdata/protein_groups.txt") %>%
+  rename(protein_id="Protein IDs")
+
+metadata <- read_tsv("microplastics_rumen/rawdata/metadata.txt")
 metadata$sampleid <- as.character(metadata$sampleid)
 
 colors_cog <- c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c',
@@ -27,7 +26,7 @@ colors_cog <- c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c',
                 '#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69',
                 '#fccde5','#d9d9d9','#bc80bd','#ccebc5')
 
-lfq_barley %>% 
+cog_plot_barley <- lfq_barley %>% 
   filter(significant == "TRUE") %>% 
   select(protein_id) %>% 
   inner_join(protein_groups, by="protein_id") %>%
@@ -61,7 +60,26 @@ lfq_barley %>%
              fill = COG_category)) +
   geom_col() +
   scale_y_continuous(expand = c(0,0)) +
-  scale_fill_manual(values = colors_cog) +
+  scale_fill_manual(values = colors_cog, labels = c("A"="RNA processing",
+                                                    "C"="Energy production",
+                                                    "M"="Cell wall biogenesis",
+                                                    "D"="Cell cycle",
+                                                    "E"="Amino acid metabolism",
+                                                    "F"="Nucleotide metabolism",
+                                                    "G"="Carbohydrate metabolism",
+                                                    "H"="Coenzyme metabolism",
+                                                    "I"="Lipid metabolism",
+                                                    "J"="Translation",
+                                                    "K"="Transcription",
+                                                    "L"="Replication + repair",
+                                                    "N"="Cell motility",
+                                                    "O"="Post-translational modification", 
+                                                    "P"="Inorganic ion metabolism",
+                                                    "Q"="Secondary structure",
+                                                    "S"="Function unknown",
+                                                    "T"="Signal transduction",
+                                                    "U"="Intracellular trafficing and secretion",
+                                                    "V"="Defense mechanism")) +
   labs(y = "Relative abundance (%)",
        x = NULL) +
   theme_classic() +
@@ -122,7 +140,7 @@ lfq_hay %>%
 ggsave(filename = "figures/cog_barplot_sig_hay.png", width = 7, height = 5)
 
 
-lfq_barley %>% 
+cazyme_barley <- lfq_barley %>% 
   filter(significant == "TRUE") %>% 
   select(protein_id) %>% 
   inner_join(protein_groups, by="protein_id") %>%
@@ -138,21 +156,38 @@ lfq_barley %>%
   filter(matrix=="barley",
          group != "Barley",
          group != "uHDPE x uPVC") %>% 
-  group_by(group, CAZy) %>% 
-  summarise(mean_lfq = mean(sum_lfq), .groups = "drop") %>% 
-  ggplot(aes(x=group,
-             y=mean_lfq)) +
-  geom_col(fill = "blue") + 
-  facet_wrap(~CAZy, nrow = 4) +
-  scale_y_continuous(expand = c(0,0)) +
-  labs(y = "LFQ",
+  #group_by(group, CAZy) %>% 
+  #summarise(mean_lfq = mean(sum_lfq), .groups = "drop") %>% 
+  ggplot(aes(x=factor(new_group,
+                      levels = c("sPLA", "sPHB", "sHDPE", "sPVC", "lPLA", 
+                                 "lPHB", "lHDPE", "lPVC", "lPP")),
+             y=sum_lfq)) +
+  geom_boxplot(linewidth = 0.3,outlier.size = 0.3) + 
+  facet_wrap(~CAZy, nrow = 4, scales = "free_y") +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(y = "Abundance (LFQ)",
        x = NULL) +
-  theme_classic() +
-  theme(legend.title = element_blank(),
+  theme_bw() +
+  theme(text = element_text(family = "opensans"),
+        legend.title = element_blank(),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 
-ggsave(filename = "figures/CAZy_barplots.png", width = 5, height = 5)  
+design <- "#AAAAAA#
+           #AAAAAA#
+           BBBBBBBB
+           BBBBBBBB
+           BBBBBBBB"
+
+cog_plot_barley / cazyme_barley + 
+  plot_layout(design = design) +
+  plot_annotation(tag_levels = 'A') &
+  theme(#legend.position='bottom',
+    text = element_text(size = 25),
+    legend.text = element_text(size = 18),
+    legend.key.size = unit(0.4, 'cm'))
+
+ggsave(filename = "microplastics_rumen/plots/CAZy_barplots.png", width = 7, height = 7)  
 
 
 ########### match proteins  
