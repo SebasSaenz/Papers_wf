@@ -1,5 +1,5 @@
 # Johan S. Sáenz, University of Hohenheim
-# Calculate the number of defence sytem in the colection of genomes
+# Calculate the number of defence systems in the collection of genomes
 
 
 # Load libraries ---------------------------------------------------------------
@@ -94,145 +94,6 @@ kingdom_number <- taxonomy %>%
   select(kingdom) %>%
   count(kingdom, name = "total")
 
-# Number of genomes wiht DS
-barplots_total_ds <- all_result %>%
-  filter(!grepl("_other", system)) %>%
-  select(genome) %>%
-  mutate(genome = str_remove(genome, ".fasta_padloc.csv")) %>%
-  unique() %>%
-  inner_join(taxonomy, by = "genome") %>%
-  select(kingdom) %>%
-  count(kingdom) %>%
-  inner_join(kingdom_number, by = "kingdom") %>%
-  mutate(percent = 100 * (n / total)) %>%
-  ggplot(aes(
-    x = kingdom,
-    y = percent,
-    fill = kingdom
-  )) +
-  geom_col() +
-  scale_fill_manual(values = colors) +
-  scale_y_continuous(
-    expand = c(0, 0),
-    limits = c(0, 100),
-    breaks = seq(0, 100, 20)
-  ) +
-  labs(
-    y = "Genomes with defence system (%)",
-    x = NULL
-  ) +
-  theme_classic() +
-  theme(
-    text = element_text(size = 14),
-    axis.title.y = element_text(size = 12),
-    legend.position = "none"
-  )
-
-# Number of systems per genome
-number_system <- all_result %>% # all genomes with DS
-  select(genome, system.number, system) %>%
-  filter(!grepl("_other", system)) %>%
-  unique() %>%
-  mutate(genome = str_remove(genome, ".fasta_padloc.csv")) %>%
-  count(genome) %>%
-  right_join(taxonomy, by = "genome") %>%
-  mutate(n = replace_na(n, 0)) %>%
-  select(kingdom, n) %>%
-  ggplot(aes(
-    x = kingdom,
-    y = n,
-    fill = kingdom
-  )) +
-  geom_point(
-    shape = 21,
-    position = position_jitter(
-      width = 0.2,
-      seed = 0
-    ),
-    size = 3,
-    alpha = 0.8,
-    color = "black"
-  ) +
-  stat_summary(
-    fun = median,
-    show.legend = FALSE,
-    geom = "crossbar",
-    color = "black",
-    linewidth = 0.5
-  ) +
-  scale_fill_manual(values = colors) +
-  scale_y_continuous(
-    expand = c(0, 0),
-    limits = c(0, 35),
-    breaks = seq(0, 35, 5),
-    oob = scales::squish
-  ) +
-  labs(
-    y = "Defence system per genome",
-    x = NULL
-  ) +
-  theme_classic() +
-  theme(
-    text = element_text(size = 14),
-    axis.title.y = element_text(size = 12),
-    legend.position = "none"
-  )
-
-# Number of DS families per genome
-family_system <- all_result %>% # all genomes with DS
-  select(genome, system.number, system) %>%
-  filter(!grepl("_other", system)) %>%
-  unique() %>%
-  inner_join(list_system, by = "system") %>%
-  select(genome, system_family) %>%
-  unique() %>%
-  mutate(genome = str_remove(genome, ".fasta_padloc.csv")) %>%
-  count(genome) %>%
-  right_join(taxonomy, by = "genome") %>%
-  mutate(n = replace_na(n, 0)) %>%
-  ggplot(aes(
-    x = kingdom,
-    y = n,
-    fill = kingdom
-  )) +
-  geom_point(
-    shape = 21,
-    position = position_jitter(
-      width = 0.2,
-      seed = 0
-    ),
-    size = 3,
-    alpha = 0.8,
-    color = "black"
-  ) +
-  stat_summary(
-    fun = median,
-    show.legend = FALSE,
-    geom = "crossbar",
-    color = "black",
-    linewidth = 0.5
-  ) +
-  scale_fill_manual(values = colors) +
-  scale_y_continuous(
-    expand = c(0, 0),
-    limits = c(0, 35),
-    breaks = seq(0, 35, 5),
-    oob = scales::squish
-  ) +
-  labs(
-    y = "Defence system families per genome",
-    x = NULL
-  ) +
-  theme_classic() +
-  theme(
-    text = element_text(size = 14),
-    axis.title.y = element_text(size = 12),
-    legend.position = "none"
-  )
-
-# Write file of number of ds families
-write_tsv(family_system, file = "rawdata/family_system_number_tree.txt")
-
 # Barplot of number of DS per genome (distribution)
 bar_number_system_genomes <- all_result %>% # all genomes with DS
   select(genome, system.number, system) %>%
@@ -264,7 +125,7 @@ bar_number_system_genomes <- all_result %>% # all genomes with DS
   ) +
   scale_x_continuous(
     expand = c(0, 0),
-    breaks = seq(0, 20, 1)
+    breaks = seq(0, 20, 2)
   ) +
   labs(
     y = "Number of genomes (%)",
@@ -280,7 +141,7 @@ bar_number_system_genomes <- all_result %>% # all genomes with DS
     axis.title.y = element_text(size = 12),
     strip.background = element_blank(),
     strip.text.y = element_blank(),
-    legend.position = c(0.8, 0.95),
+    legend.position.inside = c(0.8, 0.95),
     legend.title = element_blank(),
     legend.text = element_text(size = 15),
     panel.spacing = unit(2, "lines")
@@ -313,7 +174,7 @@ genome_size_ds <- all_result %>% # all genomes with DS
     color = "black"
   ) +
   geom_smooth(color = "black") +
-  scale_x_continuous(breaks = seq(0, 7.5, 0.5)) +
+  scale_x_continuous(breaks = seq(0, 8, 1)) +
   scale_y_continuous(breaks = seq(0, 35, 5)) +
   scale_fill_manual(values = colors) +
   facet_grid(rows = vars(kingdom)) +
@@ -364,7 +225,7 @@ provirus <- viral_qc %>%
     contig_id = str_replace_all(contig_id, "_deg.*", "")
   ) %>%
   group_by(contig_id) %>%
-  summarise(proviruses = n()) %>%
+  summarise(proviruses = n(), .groups = "drop") %>%
   rename(genome = contig_id)
 
 # Plot of number of proviruses and DS pero genome
@@ -380,23 +241,36 @@ ds_provirus <- left_join(taxonomy, provirus, by = "genome") %>%
     y = n,
     fill = kingdom
   )) +
-  geom_point(
-    shape = 21,
-    position = position_jitter(
-      width = 0.2,
-      seed = 0
-    ),
-    size = 3,
-    alpha = 0.8,
-    color = "black"
+  geom_violin(
+    aes(fill = kingdom, fill = after_scale(colorspace::lighten(fill, .5))),
+    size = 1.2, color = NA,
+    bw = 0.5
+  ) +
+  geom_boxplot(
+    width = .1, size = 0.3
   ) +
   stat_summary(
+    geom = "point",
     fun = median,
-    show.legend = FALSE,
-    geom = "crossbar",
-    color = "black",
-    linewidth = 0.5
-  ) +
+    color = "white",
+    size = 1) +
+  # geom_point(
+  #   shape = 21,
+  #   position = position_jitter(
+  #     width = 0.2,
+  #     seed = 0
+  #   ),
+  #   size = 3,
+  #   alpha = 0.8,
+  #   color = "black"
+  # ) +
+  # stat_summary(
+  #   fun = median,
+  #   show.legend = FALSE,
+  #   geom = "crossbar",
+  #   color = "black",
+  #   linewidth = 0.5
+  # ) +
   scale_fill_manual(values = colors) +
   scale_y_continuous(
     expand = c(0, 0),
@@ -408,7 +282,7 @@ ds_provirus <- left_join(taxonomy, provirus, by = "genome") %>%
     y = "Defence system per genome",
     x = "Number of proviruses"
   ) +
-  facet_grid(cols = vars(kingdom)) +
+  facet_grid(rows = vars(kingdom)) +
   theme_classic() +
   theme(
     text = element_text(size = 13),
@@ -416,7 +290,7 @@ ds_provirus <- left_join(taxonomy, provirus, by = "genome") %>%
     axis.text.y = element_text(size = 10),
     axis.title.y = element_text(size = 12),
     strip.background = element_blank(),
-    strip.text.x = element_blank(),
+    strip.text.y = element_blank(),
     legend.position = "none",
     legend.title = element_blank(),
     legend.text = element_text(size = 15),
@@ -425,12 +299,11 @@ ds_provirus <- left_join(taxonomy, provirus, by = "genome") %>%
 
 
 # Make compose plot ------------------------------------------------------------
-figure1 <- (barplots_total_ds + family_system + number_system) /
-  (bar_number_system_genomes + genome_size_ds) / (ds_provirus) +
+figure2 <-  ((bar_number_system_genomes / genome_size_ds) | (ds_provirus)) +
   plot_annotation(tag_levels = "A") &
   theme(plot.tag = element_text(size = 16))
 
-ggsave(figure1, file = "plots/figure1.png", width = 10, height = 11, dpi = 400)
+ggsave(figure2, file = "defence_rummen/new_plots/Figure_2.png", width = 10, height = 8, dpi = 400)
 
 
 # Prevalence of system in all genomes ------------------------------------------

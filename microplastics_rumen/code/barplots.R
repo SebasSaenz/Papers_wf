@@ -34,7 +34,11 @@ df_tax <- taxonomy %>%
   mutate(rel_abun = 100*(sum_lfq/sum(sum_lfq))) %>% 
   ungroup() %>% 
   group_by(Phylum, new_group) %>% 
-  summarise(mean_rel_abun = mean(rel_abun), .groups = "drop")
+  summarise(mean_rel_abun = mean(rel_abun),
+            sd = sd(rel_abun),
+            .groups = "drop")
+
+write.csv(df_tax, file = "microplastics_rumen/hay_phylum_summary.csv")
 
 pool_tax <- df_tax %>% 
   group_by(Phylum) %>% 
@@ -51,7 +55,8 @@ hay_plot_phylum <- inner_join(pool_tax, df_tax) %>%
   mutate(Phylum = if_else(pool, "Other", Phylum)) %>% 
   group_by(new_group, Phylum) %>% 
   summarise(total_mean_rel = sum(mean_rel_abun),
-            .groups = "drop") %>% 
+            .groups = "drop"
+            ) %>% 
   #filter(Phylum != "Unclassified") %>% 
   ggplot(aes(x = new_group,
              y = total_mean_rel,
@@ -92,8 +97,11 @@ df_tax_barley <- taxonomy %>%
   mutate(rel_abun = 100*(sum_lfq/sum(sum_lfq))) %>% 
   ungroup() %>% 
   group_by(Phylum, new_group) %>% 
-  summarise(mean_rel_abun = mean(rel_abun), .groups = "drop")
+  summarise(mean_rel_abun = mean(rel_abun),
+            sd = sd(rel_abun),
+            .groups = "drop")
 
+write.csv(df_tax_barley, file = "microplastics_rumen/barley_phylum_summary.csv")
 
 pool_tax <- df_tax_barley %>% 
   group_by(Phylum) %>% 
@@ -152,7 +160,11 @@ df_tax_family_hay <- taxonomy %>%
   mutate(rel_abun = 100*(sum_lfq/sum(sum_lfq))) %>% 
   ungroup() %>% 
   group_by(Family, new_group) %>% 
-  summarise(mean_rel_abun = mean(rel_abun), .groups = "drop")
+  summarise(mean_rel_abun = mean(rel_abun),
+            sd = sd(rel_abun),
+            .groups = "drop")
+
+write.csv(df_tax_family_hay, file = "microplastics_rumen/hay_family_summary.csv")
 
 pool_tax <- df_tax_family_hay %>% 
   group_by(Family) %>% 
@@ -210,8 +222,11 @@ df_tax_family_barley <- taxonomy %>%
   mutate(rel_abun = 100*(sum_lfq/sum(sum_lfq))) %>% 
   ungroup() %>% 
   group_by(Family, new_group) %>% 
-  summarise(mean_rel_abun = mean(rel_abun), .groups = "drop")
+  summarise(mean_rel_abun = mean(rel_abun),
+            sd = sd(rel_abun),
+            .groups = "drop")
 
+write.csv(df_tax_family_barley, file = "microplastics_rumen/barley_family_summary.csv")
 
 pool_tax <- df_tax_family_barley %>% 
   group_by(Family) %>% 

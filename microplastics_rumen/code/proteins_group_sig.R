@@ -1,7 +1,9 @@
 pacman::p_load(tidyverse,
                viridis,
                Hmisc,
-               ggpubr)
+               ggpubr,
+               showtext,
+               patchwork)
 
 
 metabolites <- read_tsv("rawdata/metabolites.txt")
@@ -26,6 +28,11 @@ colors_cog <- c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c',
                 '#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69',
                 '#fccde5','#d9d9d9','#bc80bd','#ccebc5')
 
+
+font_add_google("Open Sans", "opensans") # You need these for the font
+showtext_auto()
+
+
 cog_plot_barley <- lfq_barley %>% 
   filter(significant == "TRUE") %>% 
   select(protein_id) %>% 
@@ -39,23 +46,21 @@ cog_plot_barley <- lfq_barley %>%
   filter(matrix=="barley" | matrix =="RumenJ",
          #group != "Barley",
          group != "uHDPE x uPVC") %>%
-  select(sampleid, group, COG_category, lfq) %>% 
+  select(sampleid, new_group, COG_category, lfq) %>% 
   mutate(COG_category=str_replace(COG_category, "..", "Other"),
          COG_category=str_replace(COG_category, "Other.", "Other"),
          COG_category=str_replace(COG_category, "-", "Other"),
          COG_category=if_else(is.na(COG_category), "Other", COG_category),
-         group=factor(group, 
-                      levels = c("Barley", "RumenJ", "nHDPE","nPHB",
-                                                 "nPLA", "nPVC", "uHDPE", "uPHB", "uPLA",
-                                                 "uPP", "uPVC")
+         new_group=factor(new_group, 
+                      levels = c("Barley+", "RF","sPLA","sPHB","sHDPE","sPVC","lPLA","lPHB", "lHDPE","lPVC","lPP")
                                                  )) %>%
-  group_by(sampleid, group, COG_category) %>%
+  group_by(sampleid, new_group, COG_category) %>%
   summarise(sum_lfq = sum(lfq), .groups = "drop") %>%
   group_by(sampleid) %>% 
   mutate(rel_abundance = 100*(sum_lfq/sum(sum_lfq))) %>% 
-  group_by(group, COG_category) %>%
+  group_by(new_group, COG_category) %>%
   summarise(mean_rel_abundance =mean(rel_abundance), .groups = "drop") %>% 
-  ggplot(aes(x=group,
+  ggplot(aes(x=new_group,
              y=mean_rel_abundance,
              fill = COG_category)) +
   geom_col() +
@@ -82,9 +87,14 @@ cog_plot_barley <- lfq_barley %>%
                                                     "V"="Defense mechanism")) +
   labs(y = "Relative abundance (%)",
        x = NULL) +
-  theme_classic() +
-  theme(legend.title = element_blank(),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme_bw() +
+  theme(
+    text = element_text(family = "opensans"),
+    panel.background = element_blank(), #remove background
+    panel.grid.major = element_blank(), #remove grid
+    panel.grid.minor = element_blank(),
+    legend.title = element_blank(),
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
   
   
 ggsave(filename = "figures/cog_barplot_sig_barley.png", width = 7, height = 5)
