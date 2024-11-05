@@ -60,8 +60,7 @@ substrate_plot <- fr_df %>%
     breaks = seq(0, 0.1, 0.01)
   ) +
   scale_color_manual(values = base_color) +
-  labs(x = NULL,
-       title = "Substrate") +
+  labs(x = NULL) +
   theme(
     panel.background = element_blank(),
     legend.key = element_blank(),
@@ -77,9 +76,9 @@ substrate_plot <- fr_df %>%
                             "Wheat grain" = "Wheat\ngrain"))
 
 
-compose_plot <- treatment_plot + incubation_plot + substrate_plot + plot_layout(guides = "collect",
-                                                              axes = "collect")
+compose_plot <- treatment_plot + incubation_plot + substrate_plot + plot_layout(guides = "collect") +
+  plot_annotation(tag_levels = "A")
 
 ggsave(compose_plot,
-       filename = "conservation_protocol/plots/FR.png", width = 10, height = 4,
+       filename = "conservation_protocol/plots/FR.png", width = 11, height = 4,
        dpi = 400)

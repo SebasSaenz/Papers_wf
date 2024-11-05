@@ -214,9 +214,9 @@ viral_qc <- read_tsv("defence_rummen/rawdata/viral_quality_summary.tsv")
 # Number of proviruses in the hg genomes
 provirus <- viral_qc %>%
   filter(
-    provirus == "Yes",
-    viral_genes >= 1,
-    proviral_length > 10000
+    viral_genes >=1,
+    viral_genes * 3 >= host_genes,
+    contig_length > 10000,
   ) %>%
   select(contig_id) %>%
   mutate(
@@ -234,8 +234,9 @@ ds_provirus <- left_join(taxonomy, provirus, by = "genome") %>%
   left_join(number_system_provirus, provirus, by = "genome") %>%
   mutate(
     proviruses = if_else(is.na(proviruses), 0, proviruses),
-    proviruses = factor(proviruses, levels = c(0, 1, 2, 3, 4, 5))
-  ) %>%
+    #proviruses = factor(proviruses, levels = c(0, 1, 2, 3, 4, 5, 6, 7,8,9,10)
+    ) %>%
+  filter(kingdom == "Archaea")
   ggplot(aes(
     x = proviruses,
     y = n,
@@ -297,6 +298,8 @@ ds_provirus <- left_join(taxonomy, provirus, by = "genome") %>%
     panel.spacing = unit(2, "lines")
   )
 
+
+cor.test(ds_provirus$proviruses, ds_provirus$n, method = "spearm")
 
 # Make compose plot ------------------------------------------------------------
 figure2 <-  ((bar_number_system_genomes / genome_size_ds) | (ds_provirus)) +
@@ -576,7 +579,15 @@ select_genus <- all_result %>%
   ) %>%
   select(genus)
 
+
 # Plot DS per genome
+
+genus_order <- genus_ds_fam_plot %>% 
+  group_by(new_name) %>% 
+  summarise(mean_total = mean(total)) %>% 
+  arrange(mean_total) %>% 
+  pull(new_name)
+
 genus_ds_plot <- all_result %>%
   select(genome, system.number, system) %>%
   filter(!grepl("_other", system)) %>%
@@ -596,7 +607,7 @@ genus_ds_plot <- all_result %>%
   ) %>%
   ggplot(aes(
     x = total, digits = 1,
-    y = reorder(new_name, total)
+    y = factor(new_name, levels =genus_order)
   )) +
   geom_point(
     shape = 21,
@@ -617,18 +628,21 @@ genus_ds_plot <- all_result %>%
   ) +
   scale_x_continuous(
     expand = c(0, 0),
-    limits = c(0, 36),
-    breaks = seq(0, 36, 2)
+    limits = c(0, 34),
+    breaks = seq(0, 34, 4)
   ) +
   scale_fill_manual(values = colors) +
   labs(
-    x = "Number of defence system",
+    x = "Number of defence systems",
     y = NULL
   ) +
   theme_classic() +
   theme(
     text = element_text(size = 12),
-    axis.text.y = element_markdown()
+    axis.text.y = element_markdown(),
+    axis.text.y.left = element_blank(),
+    panel.grid.major.x = element_line(linetype = 2, linewidth = 0.4)
+    
   )
 
 # Number of defence system families by genus
@@ -649,11 +663,10 @@ genus_ds_fam_plot <- all_result %>%
   mutate(
     genus = str_replace(genus, "_", " "),
     new_name = str_c(family, ": ", genus),
-    new_name = str_replace(new_name, " ", "<br>")
-  ) %>%
+    new_name = str_replace(new_name, " ", "<br>")) %>%
   ggplot(aes(
     x = total, digits = 1,
-    y = reorder(new_name, total)
+    y = factor(new_name, levels = genus_order)
   )) +
   geom_point(
     shape = 21,
@@ -674,8 +687,8 @@ genus_ds_fam_plot <- all_result %>%
   ) +
   scale_x_continuous(
     expand = c(0, 0),
-    limits = c(0, 14),
-    breaks = seq(0, 14, 2)
+    limits = c(0, 12),
+    breaks = seq(0, 12, 2)
   ) +
   scale_fill_manual(values = colors) +
   labs(
@@ -685,16 +698,78 @@ genus_ds_fam_plot <- all_result %>%
   theme_classic() +
   theme(
     text = element_text(size = 12),
-    axis.text.y = element_markdown()
+    axis.text.y = element_markdown(),
+    panel.grid.major.x = element_line(linetype = 2, linewidth = 0.4))
+
+#Density of defence
+genus_density <- all_result %>%
+  select(genome, system.number, system) %>%
+  filter(!grepl("_other", system)) %>%
+  unique() %>%
+  mutate(genome = str_remove(genome, ".fasta_padloc.csv")) %>%
+  count(genome) %>%
+  group_by(genome) %>%
+  summarise(total = mean(n), .groups = "drop") %>%
+  right_join(taxonomy, by = "genome") %>%
+  mutate(total = replace_na(total, 0)) %>%
+  left_join(quality_genomes, by="genome") %>% 
+  select(family, genus, total, Genome_Size) %>%
+  filter(genus %in% select_genus$genus) %>%
+  mutate(
+    size_kb = Genome_Size/1000,
+    density = 1000*(total/size_kb),
+    genus = str_replace(genus, "_", " "),
+    new_name = str_c(family, ": ", genus),
+    new_name = str_replace(new_name, " ", "<br>")
+  ) %>%
+  ggplot(aes(
+    x = density,
+    y = factor(new_name, levels = genus_order)
+  )) +
+  geom_point(
+    shape = 21,
+    position = position_jitter(
+      height = 0.1,
+      seed = 0
+    ),
+    size = 2,
+    alpha = 0.9,
+    fill = "grey"
+  ) +
+  stat_summary(
+    fun = mean,
+    show.legend = FALSE,
+    geom = "crossbar",
+    color = "black",
+    linewidth = 0.5
+  ) +
+  scale_x_continuous(
+    expand = c(0, 0),
+    limits = c(0, 12),
+    breaks = seq(0, 12, 2)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(
+    x = bquote("Defence systems / kbp"~(x10^-3)),
+               y = NULL
+  ) +
+  theme_classic() +
+  theme(
+    text = element_text(size = 12),
+    axis.text.y = element_markdown(),
+    axis.text.y.left = element_blank(),
+    panel.grid.major.x = element_line(linetype = 2, linewidth = 0.4)
+    
   )
 
+
 # Make compose plot
-figure4 <- genus_ds_fam_plot + genus_ds_plot +
+figure4 <- genus_ds_fam_plot + genus_ds_plot + genus_density +
   plot_annotation(tag_levels = "A")
 
 # Save plot
 ggsave(figure4,
-  file = "plots/figure4.png",
+  file = "defence_rummen/new_plots/figure4.png",
   width = 12, height = 6
 )
 

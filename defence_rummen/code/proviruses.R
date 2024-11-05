@@ -45,7 +45,7 @@ quality_genomes <- read_tsv("defence_rummen/rawdata/quality_report_genomes.tsv")
 taxonomy <- read_tsv("defence_rummen/rawdata/new_gtdbtk.bac120.tsv") %>% 
   rename(genome = user_genome)
 
-hq_genomes <- read_tsv("rawdata/hq_genomes.txt")
+hq_genomes <- read_tsv("defence_rummen/rawdata/hq_genomes.txt")
 
 taxonomy <- taxonomy %>%
   select(genome, classification) %>%
@@ -76,9 +76,10 @@ viral_qc <- read_tsv("defence_rummen/rawdata/viral_quality_summary.tsv")
 # Create a file to use in Tree
 # Number of proviruses per genome
 provirus <- viral_qc %>% 
-  filter(provirus == "Yes",
+  filter(
          viral_genes >=1,
-         proviral_length > 10000) %>% 
+         viral_genes * 3 >= host_genes,
+         contig_length > 10000) %>% 
   select(contig_id) %>% 
   mutate(contig_id=str_replace_all(contig_id, "_sc.*", ""),
          contig_id=str_replace_all(contig_id, "_\\d+.*", ""),
@@ -98,7 +99,7 @@ ds_provirus <- left_join(taxonomy, provirus, by = "genome") %>%
   select(genome, proviruses) %>% 
   left_join(number_system, provirus, by = "genome") %>% 
   mutate(proviruses=if_else(is.na(proviruses), 0, proviruses),
-         proviruses = factor(proviruses, levels = c(0, 1, 2, 3, 4, 5))) %>% 
+         proviruses = factor(proviruses, levels = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))) %>% 
   ggplot(aes(x = proviruses,
              y = n,
              fill = kingdom)) +

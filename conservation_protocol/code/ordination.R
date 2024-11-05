@@ -162,6 +162,12 @@ tax_plot_feed <- data_nmds_tax %>%
     panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)
   )
 
+ordination_tax <- ordination_plot <- tax_plot + tax_plot_feed + plot_layout(guides = "collect") +
+  plot_annotation(tag_levels = "A")
+
+ggsave(ordination_tax, file ="conservation_protocol/plots/ordination_tax.png",
+       width = 10, height = 4, dpi = 300)
+
 # Ordination core proteins -----------------------------------------------------
 
 protein_names <- proteins %>%
@@ -266,15 +272,12 @@ prot_70p_incubation <- data_nmds_proteins_filtered %>%
   scale_fill_manual(values = base_color) +
   theme(
     panel.background = element_blank(),
-    legend.key = element_blank(),
     legend.title = element_blank(),
     legend.text = element_text(size = 12),
     legend.box.spacing = unit(0, "cm"),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),
-    legend.position = "none"
-  )
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 1))
 
 prot_70p_substrate <- data_nmds_proteins_filtered %>%
   ggplot(aes(
@@ -297,23 +300,20 @@ prot_70p_substrate <- data_nmds_proteins_filtered %>%
   scale_fill_manual(values = base_color) +
   theme(
     panel.background = element_blank(),
-    legend.key = element_blank(),
     legend.title = element_blank(),
     legend.text = element_text(size = 12),
     legend.box.spacing = unit(0, "cm"),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),
-    legend.position = "none"
-  )
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 1))
 
 # save plot --------------------------------------------------------------------
-ordination_plot <- tax_plot + tax_plot_feed + prot_70p_incubation + prot_70p_substrate + plot_layout(guides = "collect") +
+ordination_protein <-  prot_70p_incubation + prot_70p_substrate + plot_layout(guides = "collect") +
   plot_annotation(tag_levels = "A")
 
-ggsave(ordination_plot,
-  filename = "conservation_protocol/plots/ordination.png",
-  width = 9, height = 6, dpi = 450)
+ggsave(ordination_protein,
+  filename = "conservation_protocol/plots/ordination_protein.png",
+  width = 10, height = 4, dpi = 300)
 
 # Adonis test ----
 dist <- vegdist(matrix_proteins_filtered, method = "bray")
