@@ -2,6 +2,8 @@
 
 ## 2024
 
+-   Lena Rippstein, Johan Sebastián Sáenz**,** Natascha Titze, Katharina Judith Wild, Jana Seifert, Markus Rodehutscord. 2024. **Effect of preservation on microbiome activity in sheep faeces as inoculum for an *in vitro* assay. [REPOSITORY](https://github.com/SebasSaenz/Papers_wf/tree/main/conservation_protocol/code)**
+-   J. Eichinger,  J. Seifert, J. Sáenz, N. Amin, S. Kuenz, F. Eckel, C. Zollfrank, W. Windisch, D. Brugger. 2024. **The interaction of microplastics with the ruminal ecosystem [*in vitro .*]{.underline}** Journal of Hazardous materials. [REPOSITORY](https://github.com/SebasSaenz/Papers_wf/tree/main/microplastics_rumen/code)
 -   Sáenz, J.S., Rios-Galicia, B, and Seifert, J., 2024. Bacterial and archaeal antiviral defence system in the rumen microbiome [**REPOSITORY**](https://github.com/SebasSaenz/Papers_wf/tree/main/defence_rummen)
 
 ## **2023**
