@@ -141,13 +141,14 @@ bar_number_system_genomes <- all_result %>% # all genomes with DS
     axis.title.y = element_text(size = 12),
     strip.background = element_blank(),
     strip.text.y = element_blank(),
-    legend.position.inside = c(0.8, 0.95),
+    legend.position= "none",
+    legend.key.size = unit(0.2, "cm"),
     legend.title = element_blank(),
-    legend.text = element_text(size = 15),
-    panel.spacing = unit(2, "lines")
+    legend.text = element_text(size = 8),
+    panel.spacing = unit(1, "lines")
   )
 
-
+bar_number_system_genomes
 
 # Plot of the correlation between genome size and DS
 genome_size_ds <- all_result %>% # all genomes with DS
@@ -234,9 +235,9 @@ ds_provirus <- left_join(taxonomy, provirus, by = "genome") %>%
   left_join(number_system_provirus, provirus, by = "genome") %>%
   mutate(
     proviruses = if_else(is.na(proviruses), 0, proviruses),
-    #proviruses = factor(proviruses, levels = c(0, 1, 2, 3, 4, 5, 6, 7,8,9,10)
-    ) %>%
-  filter(kingdom == "Archaea")
+    proviruses = factor(proviruses, levels = c(0, 1, 2, 3, 4, 5, 6, 7,8,9,10)
+    )) %>%
+  filter(proviruses != "10") %>% 
   ggplot(aes(
     x = proviruses,
     y = n,
@@ -292,9 +293,9 @@ ds_provirus <- left_join(taxonomy, provirus, by = "genome") %>%
     axis.title.y = element_text(size = 12),
     strip.background = element_blank(),
     strip.text.y = element_blank(),
-    legend.position = "none",
+    legend.position = "top",
     legend.title = element_blank(),
-    legend.text = element_text(size = 15),
+    legend.text = element_text(size = 10),
     panel.spacing = unit(2, "lines")
   )
 
@@ -304,9 +305,13 @@ cor.test(ds_provirus$proviruses, ds_provirus$n, method = "spearm")
 # Make compose plot ------------------------------------------------------------
 figure2 <-  ((bar_number_system_genomes / genome_size_ds) | (ds_provirus)) +
   plot_annotation(tag_levels = "A") &
-  theme(plot.tag = element_text(size = 16))
+  theme(plot.tag = element_text(size = 16),
+        text = element_text(size = 10),
+        axis.text.y = element_text(size = 8))
 
-ggsave(figure2, file = "defence_rummen/new_plots/Figure_2.png", width = 10, height = 8, dpi = 400)
+ggsave(figure2, file = "../../../NextCloud/Johan Sebastián/Papers_2024/defence_rummen/plots/Figure_2.tiff", 
+       width = 7, height = 6, units = "in", 
+       dpi = 300)
 
 
 # Prevalence of system in all genomes ------------------------------------------
@@ -371,8 +376,8 @@ barplot_prevalence <- system_prevalence_genomes %>%
   ) +
   scale_x_continuous(
     expand = c(0, 0),
-    limits = c(0, 65),
-    breaks = seq(0, 65, 5)
+    limits = c(0, 70),
+    breaks = seq(0, 70, 10)
   ) +
   scale_fill_manual(values = colors) +
   labs(
@@ -381,13 +386,13 @@ barplot_prevalence <- system_prevalence_genomes %>%
   ) +
   theme_classic() +
   theme(
-    axis.title = element_text(size = 16),
-    axis.text.x = element_text(size = 12),
-    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 10),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 7),
     plot.margin = margin(0, 0, 0, 0),
     legend.title = element_blank(),
-    legend.text = element_text(size = 14),
-    legend.position = c(0.8, 0.2)
+    legend.text = element_text(size = 10),
+    legend.position = c(0.6, 0.2)
   )
 
 
@@ -451,21 +456,25 @@ rel_abun_ds_family <- inner_join(rel_abund_system_kingdom, taxon_pool, by = "sys
   ) +
   theme_classic() +
   theme(
-    text = element_text(size = 16),
-    axis.text.x = element_markdown(size = 18),
+    text = element_text(size = 12),
+    axis.text.x = element_markdown(size = 12),
     legend.title = element_blank(),
-    legend.key.size = unit(0.6, "cm"),
+    legend.text = element_text(size= 8),
+    legend.key.size = unit(0.4, "cm"),
     legend.margin = margin(0, 0, 0, 0),
-    legend.box.margin = margin(0, 0, 0, -25)
+    legend.box.margin = margin(0, 0, 0, -18)
   )
 
 # Make compose plot ------------------------------------------------------------
 figure2 <- rel_abun_ds_family + barplot_prevalence +
   plot_annotation(tag_levels = "A") &
-  theme(plot.tag = element_text(size = 18))
+  theme(plot.tag = element_text(size = 13),
+        text = element_text(size = 12))
 
 ggsave(figure2,
-  file = "defence_rummen/plots/figure2.png", width = 12, height = 8
+  file = "../../../NextCloud/Johan Sebastián/Papers_2024/defence_rummen/plots/figure3.tiff", 
+  width = 7, height = 4, units = "in",
+  dpi = 300
 )
 
 
@@ -615,7 +624,7 @@ genus_ds_plot <- all_result %>%
       height = 0.1,
       seed = 0
     ),
-    size = 2,
+    size = 1.5,
     alpha = 0.9,
     fill = "grey"
   ) +
@@ -674,7 +683,7 @@ genus_ds_fam_plot <- all_result %>%
       height = 0.1,
       seed = 0
     ),
-    size = 2,
+    size = 1.5,
     alpha = 0.9,
     fill = "grey"
   ) +
@@ -732,7 +741,7 @@ genus_density <- all_result %>%
       height = 0.1,
       seed = 0
     ),
-    size = 2,
+    size = 1.5,
     alpha = 0.9,
     fill = "grey"
   ) +
@@ -765,12 +774,14 @@ genus_density <- all_result %>%
 
 # Make compose plot
 figure4 <- genus_ds_fam_plot + genus_ds_plot + genus_density +
-  plot_annotation(tag_levels = "A")
+  plot_annotation(tag_levels = "A",) &
+  theme(text = element_text(size = 8))
 
 # Save plot
 ggsave(figure4,
-  file = "defence_rummen/new_plots/figure4.png",
-  width = 12, height = 6
+  file = "../../../NextCloud/Johan Sebastián/Papers_2024/defence_rummen/plots/figure4.tiff",
+  width = 7, height = 4, units = "in",
+  dpi = 300
 )
 
 

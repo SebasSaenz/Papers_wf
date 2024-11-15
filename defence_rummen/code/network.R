@@ -8,14 +8,16 @@ library(tidyverse)
 df_taxo <- read_tsv("defence_rummen/rawdata/gtdbtk_all_summary.tsv") %>%
   select(genome = user_genome, classification) %>%
   separate(classification,
-    into = c("domain", "phylum", "class", "order", "family", "genues", "species"),
+    into = c("domain", "phylum", "class", "order", "family", "genus", "species"),
     sep = ";"
   ) %>%
   select(genome, phylum) %>%
   mutate(phylum = str_remove(phylum, "p__"))
 
 df_phages <- read_tsv("defence_rummen/rawdata/mapping_rumen_phages.txt") %>%
-  select(phage, family)
+  select(phage, 
+         #family
+         )
 
 
 df_cas <- read_tsv("defence_rummen/rawdata/spacers_match_proviruses.txt") %>%
@@ -35,4 +37,13 @@ df_clean <- df_cas %>%
   left_join(df_phages, by = "phage")
 
 # Save file to use in Cytoskape
-write_tsv(df_clean, file = "rawdata/clean_network_file.txt")
+write_tsv(df_clean, file = "defence_rummen/rawdata/clean_network_file2.txt")
+
+
+# Count phages infecting several species
+x <- df_clean %>% 
+  select(genome, phage, genus) %>% 
+  count(phage, genus) %>% 
+  count(phage)
+
+write_tsv(df_clean, file = "defence_rummen/rawdata/spacer_match_tax.txt")

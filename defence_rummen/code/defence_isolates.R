@@ -176,7 +176,7 @@ number_system_iso <- all_result %>% # all genomes with DS
     panel.grid.major.y = element_line(linetype = 2, linewidth = 0.3)
   )
 
-kruskal.test(n ~ isolate, data = number_system)
+kruskal.test(n ~ isolate, data = number_system_iso)
 
 
 # Number of DS families per genome
@@ -234,7 +234,7 @@ family_system_iso <- all_result %>% # all genomes with DS
     panel.grid.major.y = element_line(linetype = 2, linewidth = 0.3)
   )
 
-kruskal.test(n ~ isolate, data = family_system)
+kruskal.test(n ~ isolate, data = family_system_iso)
 
 # kingdom plots ----------------------------------------------------------------
 
@@ -531,11 +531,17 @@ number_system_density <- all_result %>% # all genomes with DS
 
 kruskal.test(density_1000 ~ kingdom, data = number_system_density)
 
+number_system_density %>% 
+  group_by(kingdom) %>% 
+  summarise(mean=mean(density_1000))
 # Make compose plot ------------------------------------------------------------
 figure1 <- (barplots_total_ds_iso + family_system_iso + number_system_iso)/(barplots_total_ds + family_system + number_system) / 
   (number_system_density + number_system_iso_density + plot_spacer()) +
   plot_annotation(tag_levels = "A") &
-  theme(plot.tag = element_text(size = 16))
+  theme(plot.tag = element_text(size = 16),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 10))
 
-ggsave(figure1, filename = "defence_rummen/new_plots/Figure_1.png", 
-       width = 8, height = 9, dpi = 350)
+ggsave(figure1, filename = "../../../NextCloud/Johan Sebastián/Papers_2024/defence_rummen/plots/Figure_1.tiff", 
+       width = 7, height = 8, units = "in",
+       dpi = 300)

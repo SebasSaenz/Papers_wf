@@ -90,7 +90,8 @@ cas_phylum_genomes <- all_result %>%
   theme_classic() +
   theme(
     text = element_text(size = 8),
-    axis.text.y = element_text(size = 9)
+    axis.text.y = element_text(size = 9),
+    panel.grid.major.x = element_line(linetype = 2, linewidth = 0.4)
   )
 
 # Colors for barplot relative abundance
@@ -180,8 +181,8 @@ all_genomes_crispr <- df_crispr %>%
   geom_col() +
   scale_y_continuous(
     expand = c(0, 0),
-    limits = c(0, 100),
-    breaks = seq(0, 100, 20)
+    limits = c(0, 30),
+    breaks = seq(0, 30, 5)
   ) +
   scale_fill_manual(values = colors) +
   labs(
@@ -192,7 +193,8 @@ all_genomes_crispr <- df_crispr %>%
   theme(
     text = element_text(size = 12),
     axis.title.y = element_text(size = 12),
-    legend.position = "none"
+    legend.position = "none",
+    panel.grid.major.y = element_line(linetype = 2, linewidth = 0.4)
   )
 
 # Compose plot --------------------------------------------------
@@ -200,7 +202,8 @@ crispr_fig <- all_genomes_crispr + cas_phylum_genomes + plot_crispr_abundance +
   plot_annotation(tag_levels = "A") &
   theme(plot.tag = element_text(size = 12))
 
-ggsave(crispr_fig, file = "plots/crispr_fig.png", width = 8, height = 4, dpi = 450)
+ggsave(crispr_fig, file = "../../../NextCloud/Johan Sebastián/Papers_2024/defence_rummen/plots/crispr_fig.tiff", 
+       width = 8, height = 4, units = "in", dpi = 300)
 
 
 # Phylum factor
