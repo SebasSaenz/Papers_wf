@@ -4,18 +4,6 @@ title: "Quality control: Brazil samples"
 toc-title: Table of contents
 ---
 
--   [Peptides and MS
-    identified](#peptides-and-ms-identified){#toc-peptides-and-ms-identified}
-    -   [Peptide sequences
-        identified](#peptide-sequences-identified){#toc-peptide-sequences-identified}
-    -   [Percentage MS/MS
-        identified](#percentage-msms-identified){#toc-percentage-msms-identified}
--   [Origin of proteins](#origin-of-proteins){#toc-origin-of-proteins}
-    -   [Number of proteins from host or microbial
-        community](#number-of-proteins-from-host-or-microbial-community){#toc-number-of-proteins-from-host-or-microbial-community}
-    -   [Abundance of proteins from host and microbial
-        community](#abundance-of-proteins-from-host-and-microbial-community){#toc-abundance-of-proteins-from-host-and-microbial-community}
-
 In total 47 samples were analized using MetaLab-Mag v.1.0.1. [MGnify cow
 rumen
 catalogue](http://ftp.ebi.ac.uk/pub/databases/metagenomics/mgnify_genomes/cow-rumen/v1.0/)
@@ -34,9 +22,6 @@ average of 29.5% per sample.
 Peptide sequences distribution across samples.
 
 ::: cell
-`<details>
-<summary>`{=html}Code`</summary>`{=html}
-
 ``` {.r .cell-code}
 histogram <- df_quality %>% 
   filter(`Raw file` != "Total") %>% 
@@ -73,9 +58,6 @@ barplot <- df_quality %>%
 histogram + barplot
 ```
 
-```{=html}
-</details>
-```
 ::: cell-output-display
 ![](qc_files/figure-markdown/unnamed-chunk-2-1.png)
 :::
@@ -86,9 +68,6 @@ histogram + barplot
 MS/MS identified distribution across samples.
 
 ::: cell
-`<details>
-<summary>`{=html}Code`</summary>`{=html}
-
 ``` {.r .cell-code}
 histogram_ms <- df_quality %>% 
   filter(`Raw file` != "Total") %>% 
@@ -127,9 +106,6 @@ barplot_ms <- df_quality %>%
 histogram_ms + barplot_ms
 ```
 
-```{=html}
-</details>
-```
 ::: cell-output-display
 ![](qc_files/figure-markdown/unnamed-chunk-3-1.png)
 :::
@@ -147,9 +123,6 @@ belonging to the host (1242). Only 83 proteins were identified as
 microbial proteins.
 
 ::: cell
-`<details>
-<summary>`{=html}Code`</summary>`{=html}
-
 ``` {.r .cell-code}
 protein_origin <- df_origin %>% 
   select(`Majority protein IDs`) %>% 
@@ -177,9 +150,6 @@ protein_origin %>%
   )
 ```
 
-```{=html}
-</details>
-```
 ::: cell-output-display
 ![](qc_files/figure-markdown/unnamed-chunk-4-1.png)
 :::
@@ -191,9 +161,6 @@ In average the host protein groups represent 99.5% of the abundance of
 the total identified proteins.
 
 ::: cell
-`<details>
-<summary>`{=html}Code`</summary>`{=html}
-
 ``` {.r .cell-code}
 df_origin %>% 
   select(`Majority protein IDs`, contains("Intensity")) %>% 
@@ -225,9 +192,6 @@ df_origin %>%
         legend.position = "bottom")
 ```
 
-```{=html}
-</details>
-```
 ::: cell-output-display
 ![](qc_files/figure-markdown/unnamed-chunk-5-1.png)
 :::

@@ -1,10 +1,6 @@
 ---
 title: "Quality control: Brazil samples"
-format:
-  markdown:
-    toc: true
-    code-fold: true
-    
+format: markdown
 editor: visual
 ---
 
