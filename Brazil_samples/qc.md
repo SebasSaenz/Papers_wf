@@ -1,39 +1,43 @@
 ---
-title: "Quality control: Brazil samples"
-format:
-  markdown:
-    toc: true
-    code-fold: true
-    
 editor: visual
+title: "Quality control: Brazil samples"
+toc-title: Table of contents
 ---
 
-In total 47 samples were analized using MetaLab-Mag v.1.0.1. [MGnify cow rumen catalogue](http://ftp.ebi.ac.uk/pub/databases/metagenomics/mgnify_genomes/cow-rumen/v1.0/) v 1.0 was used to identified microbial proteins, while *Bos taurus* proteome for host proteins.
+-   [Peptides and MS
+    identified](#peptides-and-ms-identified){#toc-peptides-and-ms-identified}
+    -   [Peptide sequences
+        identified](#peptide-sequences-identified){#toc-peptide-sequences-identified}
+    -   [Percentage MS/MS
+        identified](#percentage-msms-identified){#toc-percentage-msms-identified}
+-   [Origin of proteins](#origin-of-proteins){#toc-origin-of-proteins}
+    -   [Number of proteins from host or microbial
+        community](#number-of-proteins-from-host-or-microbial-community){#toc-number-of-proteins-from-host-or-microbial-community}
+    -   [Abundance of proteins from host and microbial
+        community](#abundance-of-proteins-from-host-and-microbial-community){#toc-abundance-of-proteins-from-host-and-microbial-community}
 
-```{r}
-#| echo: false
-#| error: false
-#| warning: false
-library(tidyverse)
-library(patchwork)
-df_quality <- read_tsv("rawdata/final_summary.tsv")
-
-df_origin <- read_tsv("rawdata/final_proteins.tsv")
-```
+In total 47 samples were analized using MetaLab-Mag v.1.0.1. [MGnify cow
+rumen
+catalogue](http://ftp.ebi.ac.uk/pub/databases/metagenomics/mgnify_genomes/cow-rumen/v1.0/)
+v 1.0 was used to identified microbial proteins, while *Bos taurus*
+proteome for host proteins.
 
 ## Peptides and MS identified
 
-Across all samples 275,406 peptides sequences were identified and in average 5,859 peptide sequences were identified per sample. Also the percentage of MS/MS identified ranged between 0.92% to 36.93%, with an average of 29.5% per sample.
+Across all samples 275,406 peptides sequences were identified and in
+average 5,859 peptide sequences were identified per sample. Also the
+percentage of MS/MS identified ranged between 0.92% to 36.93%, with an
+average of 29.5% per sample.
 
 ### Peptide sequences identified
 
 Peptide sequences distribution across samples.
 
-```{r}
-#| error: false
-#| warning: false
-#| fig-width: 20
-#| fig-height: 10
+::: cell
+`<details>
+<summary>`{=html}Code`</summary>`{=html}
+
+``` {.r .cell-code}
 histogram <- df_quality %>% 
   filter(`Raw file` != "Total") %>% 
   ggplot(aes(x = `Peptide Sequences Identified`)) +
@@ -69,15 +73,23 @@ barplot <- df_quality %>%
 histogram + barplot
 ```
 
+```{=html}
+</details>
+```
+::: cell-output-display
+![](qc_files/figure-markdown/unnamed-chunk-2-1.png)
+:::
+:::
+
 ### Percentage MS/MS identified
 
 MS/MS identified distribution across samples.
 
-```{r}
-#| error: false
-#| warning: false
-#| fig-width: 20
-#| fig-height: 10
+::: cell
+`<details>
+<summary>`{=html}Code`</summary>`{=html}
+
+``` {.r .cell-code}
 histogram_ms <- df_quality %>% 
   filter(`Raw file` != "Total") %>% 
   ggplot(aes(x = `MS/MS Identified [%]`)) +
@@ -115,17 +127,30 @@ barplot_ms <- df_quality %>%
 histogram_ms + barplot_ms
 ```
 
+```{=html}
+</details>
+```
+::: cell-output-display
+![](qc_files/figure-markdown/unnamed-chunk-3-1.png)
+:::
+:::
+
 ## Origin of proteins
 
-Protein groups were identified as host or microbial using the protein IDs.
+Protein groups were identified as host or microbial using the protein
+IDs.
 
 ### Number of proteins from host or microbial community
 
-In total, 1325 protein groups were identified, with the majority of them belonging to the host (1242). Only 83 proteins were identified as microbial proteins.
+In total, 1325 protein groups were identified, with the majority of them
+belonging to the host (1242). Only 83 proteins were identified as
+microbial proteins.
 
-```{r}
-#| error: false
-#| warning: false
+::: cell
+`<details>
+<summary>`{=html}Code`</summary>`{=html}
+
+``` {.r .cell-code}
 protein_origin <- df_origin %>% 
   select(`Majority protein IDs`) %>% 
   separate(`Majority protein IDs`,
@@ -152,13 +177,24 @@ protein_origin %>%
   )
 ```
 
+```{=html}
+</details>
+```
+::: cell-output-display
+![](qc_files/figure-markdown/unnamed-chunk-4-1.png)
+:::
+:::
+
 ### Abundance of proteins from host and microbial community
 
-In average the host protein groups represent 99.5% of the abundance of the total identified proteins.
+In average the host protein groups represent 99.5% of the abundance of
+the total identified proteins.
 
-```{r}
-#| error: false
-#| warning: false
+::: cell
+`<details>
+<summary>`{=html}Code`</summary>`{=html}
+
+``` {.r .cell-code}
 df_origin %>% 
   select(`Majority protein IDs`, contains("Intensity")) %>% 
   separate(`Majority protein IDs`,
@@ -188,3 +224,11 @@ df_origin %>%
         axis.text.x.bottom = element_blank(),
         legend.position = "bottom")
 ```
+
+```{=html}
+</details>
+```
+::: cell-output-display
+![](qc_files/figure-markdown/unnamed-chunk-5-1.png)
+:::
+:::
