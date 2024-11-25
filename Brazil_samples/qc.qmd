@@ -24,6 +24,8 @@ library(gt)
 df_quality <- read_tsv("rawdata/final_summary.tsv")
 
 df_origin <- read_tsv("rawdata/final_proteins.tsv")
+
+df_taxonomy <- read_tsv("rawdata/Genome.tsv")
 ```
 
 ## Peptides and MS identified
@@ -209,4 +211,31 @@ df_origin %>%
         legend.title = element_blank(),
         axis.text.x.bottom = element_blank(),
         legend.position = "bottom")
+```
+
+## Taxonomic annotation
+
+This is just exploratory as is based only in 83 microbial proteins!!!!
+
+```{r}
+df_taxonomy %>% 
+  select(GTDB_Phylum, contains("Intensity")) %>% 
+  pivot_longer(-GTDB_Phylum, 
+               names_to = "sample", values_to = "intensity") %>%
+  mutate(GTDB_Phylum = str_remove(GTDB_Phylum, "_.*"),
+         sample = str_remove(sample, "Intensity 240410_")) %>% 
+  group_by(GTDB_Phylum, sample) %>% 
+  summarise(sum_intensity = sum(intensity), .groups = "drop") %>% 
+  group_by(sample) %>% 
+  mutate(percemtage =sum_intensity/sum(sum_intensity)) %>% 
+  ggplot(aes(x = sample,
+             y = percemtage,
+             fill = GTDB_Phylum)) +
+  geom_col() +
+  scale_y_continuous(expand = c(0,0)) +
+  labs(y = "Relative abundance (%)",
+       x = NULL) +
+  theme_bw() +
+  theme(axis.text.x.bottom = element_text(angle = 90))
+  
 ```
