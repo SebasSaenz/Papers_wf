@@ -14,8 +14,12 @@ library(gt)
 taxonomy <- read_tsv("conservation_protocol/rawdata/Genome.tsv") %>%
   rename(genome = Genome)
 
+# Fresh samples were remove because they can not be compared with the other
+# treatments
+
 clean_metadata <- readRDS("conservation_protocol/output/clean_meta.rds") %>%
-  filter(treatment != "F")
+  filter(treatment != "F") %>%
+  mutate(substrate = if_else(substrate == "None", "No substrate", substrate))
 
 proteins <- read_tsv("conservation_protocol/rawdata/functions_report.tsv")
 
@@ -280,6 +284,9 @@ prot_70p_incubation <- data_nmds_proteins_filtered %>%
     panel.border = element_rect(colour = "black", fill = NA, linewidth = 1))
 
 prot_70p_substrate <- data_nmds_proteins_filtered %>%
+  mutate(substrate = factor(substrate,
+                            levels = c("No substrate", "Hay", "Rapeseed meal",
+                                       "Wheat grain"))) %>% 
   ggplot(aes(
     x = NMDS1,
     y = NMDS2,
@@ -298,6 +305,7 @@ prot_70p_substrate <- data_nmds_proteins_filtered %>%
     guide = guide_legend(override.aes = list(color = base_color))
   ) +
   scale_fill_manual(values = base_color) +
+  scale_shape_manual(values = c(18, 17, 15, 3)) + 
   theme(
     panel.background = element_blank(),
     legend.title = element_blank(),
