@@ -1,10 +1,10 @@
 # Repository for work-flows used in publications
 
-## 2024
+## 2025
 
 -   Lena Rippstein, Johan Sebastián Sáenz**,** Natascha Titze, Katharina Judith Wild, Jana Seifert, Markus Rodehutscord. 2024. **Effect of preservation on microbiome activity in sheep faeces as inoculum for an *in vitro* assay. [REPOSITORY](https://github.com/SebasSaenz/Papers_wf/tree/main/conservation_protocol/code)**
--   J. Eichinger,  J. Seifert, J. Sáenz, N. Amin, S. Kuenz, F. Eckel, C. Zollfrank, W. Windisch, D. Brugger. 2024. **The interaction of microplastics with the ruminal ecosystem [*in vitro .*]{.underline}** Journal of Hazardous materials. [REPOSITORY](https://github.com/SebasSaenz/Papers_wf/tree/main/microplastics_rumen/code)
--   Sáenz, J.S., Rios-Galicia, B, and Seifert, J., 2024. Bacterial and archaeal antiviral defence system in the rumen microbiome [**REPOSITORY**](https://github.com/SebasSaenz/Papers_wf/tree/main/defence_rummen)
+-   J. Eichinger, J. Seifert, J. Sáenz, N. Amin, S. Kuenz, F. Eckel, C. Zollfrank, W. Windisch, D. Brugger. 2024. **The interaction of microplastics with the ruminal ecosystem [*in vitro .*]{.underline}** Journal of Hazardous materials. [REPOSITORY](https://github.com/SebasSaenz/Papers_wf/tree/main/microplastics_rumen/code)
+-   Sáenz, J. S., Rios-Galicia, B., & Seifert, J. (2025). [Antiviral defense systems in the rumen microbiome](https://journals.asm.org/doi/full/10.1128/msystems.01521-24). *mSystems*, e01521-24. [**REPOSITORY**](https://github.com/SebasSaenz/Papers_wf/tree/main/defence_rummen)
 
 ## **2023**
 

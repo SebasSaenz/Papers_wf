@@ -320,8 +320,8 @@ ordination_protein <-  prot_70p_incubation + prot_70p_substrate + plot_layout(gu
   plot_annotation(tag_levels = "A")
 
 ggsave(ordination_protein,
-  filename = "conservation_protocol/plots/ordination_protein.png",
-  width = 10, height = 4, dpi = 300)
+  filename = "conservation_protocol/plots/ordination_protein.tif",
+  width = 10, height = 4, dpi = 600)
 
 # Adonis test ----
 dist <- vegdist(matrix_proteins_filtered, method = "bray")

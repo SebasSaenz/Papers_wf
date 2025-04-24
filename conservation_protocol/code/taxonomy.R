@@ -202,8 +202,8 @@ figure2 <- (free(hm_treatment) | free(hm_incubation)) / (bp_treatment | bp_incub
               heights = unit(c(7, 5), c('cm', 'cm'))) +
   plot_annotation(tag_levels = 'A')
 
-ggsave(figure2, file="conservation_protocol/plots/figure2.png", width = 8, height = 6,
-       dpi = 400)
+ggsave(figure2, file="conservation_protocol/plots/figure2.tif", width = 8, height = 6,
+       dpi = 600)
 
 
 

@@ -46,9 +46,9 @@ TukeyHSD(res.aov)
 
 
 
-substrate_plot <- fr_df %>%
+incubation_plot <- fr_df %>%
   ggplot(aes(
-    x = substrate,
+    x = incubation,
     y = nFR
   )) +
   geom_boxplot(outlier.colour = "white", width = 0.4) +
@@ -80,5 +80,5 @@ compose_plot <- treatment_plot + incubation_plot + substrate_plot + plot_layout(
   plot_annotation(tag_levels = "A")
 
 ggsave(compose_plot,
-       filename = "conservation_protocol/plots/FR.png", width = 11, height = 4,
-       dpi = 400)
+       filename = "conservation_protocol/plots/FR.tif", width = 11, height = 4,
+       dpi = 600)
